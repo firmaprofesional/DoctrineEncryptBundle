@@ -8,8 +8,7 @@
         <!-- Encryption service(subscriber) for encrypt/decrypt entities properties -->    
         <service id="tdm_doctrine_encrypt.odm_subscriber_encrypt" class="TDM\DoctrineEncryptBundle\Subscribers\ODM\ODMEncrypt" public="false">
             <argument type="service" id="annotation_reader" />
-            <tag name="doctrine_mongodb.odm.event_listener" event="prePersist" priority="-1000"/>
-            <tag name="doctrine_mongodb.odm.event_listener" event="preUpdate" priority="-1000"/>
+            <tag name="doctrine_mongodb.odm.event_listener" event="onFlush" priority="-1000"/>
         </service>
         <!-- Decryption service(subscriber) for encrypt/decrypt entities properties -->    
         <service id="tdm_doctrine_encrypt.odm_subscriber_decrypt" class="TDM\DoctrineEncryptBundle\Subscribers\ODM\ODMDecrypt" public="false">

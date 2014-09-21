@@ -22,7 +22,7 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
      * Encrypted annotation full name
      */
     const ENCRYPTED_ANN_NAME = 'TDM\DoctrineEncryptBundle\Configuration\Encrypted';
-    
+
     /**
      * Encryptor
      * @var EncryptorInterface 
@@ -76,12 +76,16 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
      */
     abstract public function postLoad($args);
 
+    abstract public function onFlush($args);
+
+    abstract protected function checkFieldShouldProcess(ObjectWrapperInterface $objectWrapper, $fieldName);
+
     /**
      * Realization of EventSubscriber interface method.
      * @return Array Return all events which this subscriber is listening
      */
     abstract public function getSubscribedEvents();
-    
+
     /**
      * Capitalize string
      * @param string $word
@@ -106,8 +110,10 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
         $object = $objectWrapper->getObject();
         $withAnnotation = false;
         foreach ($objectWrapper->getReflection()->getProperties() as $refProperty) {
-            if ($this->processSingleField($object, $refProperty, $encryptorMethod)) {
-                $withAnnotation = TRUE;
+            if($this->checkFieldShouldProcess($objectWrapper, $refProperty->getName())) {
+                if ($this->processSingleField($object, $refProperty, $encryptorMethod)) {
+                    $withAnnotation = TRUE;
+                }
             }
         }
         return $withAnnotation;
@@ -141,7 +147,6 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
         return $this->handleValue($encryptorMethod, $currentValue, $annotation->getDeterministic());
     }
 
-
     /**
      * This method can be overridden to handle a specific data type differently.  
      * IE.  Override this to handle arrays specifically with MongoDB.
@@ -152,7 +157,7 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
     protected function handleValue($encryptorMethod, $value, $deterministic) {
         return $this->encryptor->$encryptorMethod($value, $deterministic);
     }
-    
+
     /**
      * 
      * @param ReflectionProperty $reflectionProperty

@@ -18,8 +18,9 @@ class ODMEncrypt extends AbstractODMDoctrineEncryptSubscriber {
      */
     public function getSubscribedEvents() {
         return array(
-            Events::prePersist,
-            Events::preUpdate,
+            //Events::prePersist,
+            //Events::preUpdate,
+            Events::onFlush,
         );
     }
 

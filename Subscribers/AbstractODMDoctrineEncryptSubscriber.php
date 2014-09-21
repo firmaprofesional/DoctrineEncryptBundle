@@ -6,10 +6,12 @@ use TDM\DoctrineEncryptBundle\Subscribers\AbstractDoctrineEncryptSubscriber;
 use TDM\DoctrineEncryptBundle\Configuration\Encrypted;
 use Doctrine\ODM\MongoDB\Event\LifecycleEventArgs;
 use Doctrine\ODM\MongoDB\Event\PreUpdateEventArgs;
+use Doctrine\ODM\MongoDB\Event\OnFlushEventArgs;
 use \ReflectionClass;
 use \ReflectionProperty;
 use TDM\DoctrineEncryptBundle\Models\DocumentWrapper;
 use TDM\DoctrineEncryptBundle\Interfaces\DocumentWrapperInterface;
+use TDM\DoctrineEncryptBundle\Interfaces\ObjectWrapperInterface;
 
 /**
  * Description of AbstractODMDoctrineEncryptSubscriber
@@ -52,6 +54,44 @@ abstract class AbstractODMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
         if (!$om->getUnitOfWork()->isScheduledForDelete($document)) {
             $om->getUnitOfWork()->recomputeSingleDocumentChangeSet($om->getClassMetadata(get_class($document)), $document);
         }
+    }
+
+    public function onFlush($args) {
+        if (!$args instanceof OnFlushEventArgs)
+            throw new \InvalidArgumentException('Invalid argument passed.');
+
+        $uow = $args->getDocumentManager()->getUnitOfWork();
+
+        $docs = $uow->getScheduledDocumentUpdates();
+        foreach ($docs as $doc) {
+            // Make a documentwrapper for passing around.
+            $documentWrapper = new DocumentWrapper($args->getDocumentManager(), $doc, TRUE);
+            $this->onFlushSingle($documentWrapper);
+        }
+    }
+
+    private function onFlushSingle(DocumentWrapperInterface $documentWrapper) {
+        if ($this->processFields($documentWrapper)) {
+            $documentWrapper->getUOW()->computeChangeSet($documentWrapper->getDocumentManager()->getClassMetadata(get_class($documentWrapper->getObject())), $documentWrapper->getObject());
+
+            // Now revert 
+            foreach ($documentWrapper->getUOW()->getDocumentChangeSet($documentWrapper->getObject()) as $fieldName => $change) {
+                $property = $documentWrapper->getReflection()->getProperty($fieldName);
+                $property->setAccessible(TRUE);
+                $property->setValue($documentWrapper->getObject(), $change[0]);
+            }
+        }
+    }
+
+    protected function checkFieldShouldProcess(ObjectWrapperInterface $objectWrapper, $fieldName) {
+        if (!$objectWrapper instanceof DocumentWrapperInterface) {
+            throw new \RuntimeException('ObjectWrapper must be an instanceof DocumentWrapperInterface for ODM use.');
+        }
+        if (!$objectWrapper->getIsEncrypt()) {
+            return TRUE;
+        }
+        //$name = $objectWrapper->getDocumentManager()->getClassMetadata(get_class($objectWrapper->getObject()))->getFieldMapping($fieldName)['name'];
+        return array_key_exists($fieldName, $objectWrapper->getUOW()->getDocumentChangeSet($objectWrapper->getObject()));
     }
 
     /**
