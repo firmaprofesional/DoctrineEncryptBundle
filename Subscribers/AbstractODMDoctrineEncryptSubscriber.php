@@ -8,6 +8,8 @@ use Doctrine\ODM\MongoDB\Event\LifecycleEventArgs;
 use Doctrine\ODM\MongoDB\Event\PreUpdateEventArgs;
 use \ReflectionClass;
 use \ReflectionProperty;
+use TDM\DoctrineEncryptBundle\Models\DocumentWrapper;
+use TDM\DoctrineEncryptBundle\Interfaces\DocumentWrapperInterface;
 
 /**
  * Description of AbstractODMDoctrineEncryptSubscriber
@@ -25,7 +27,11 @@ abstract class AbstractODMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
         if (!$args instanceof LifecycleEventArgs)
             throw new \InvalidArgumentException('Invalid argument passed.');
 
-        $this->processFields($args->getDocument());
+        // Make a documentwrapper for passing around.
+        $documentWrapper = new DocumentWrapper($args->getDocumentManager(), $args->getDocument(), TRUE);
+
+
+        $this->processFields($documentWrapper);
     }
 
     /**
@@ -38,9 +44,11 @@ abstract class AbstractODMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
         if (!$args instanceof PreUpdateEventArgs)
             throw new \InvalidArgumentException('Invalid argument passed.');
 
+        // Make a documentwrapper for passing around.
+        $documentWrapper = new DocumentWrapper($args->getDocumentManager(), $args->getDocument(), TRUE);
         $om = $args->getDocumentManager();
         $document = $args->getDocument();
-        $this->processFields($document);
+        $this->processFields($documentWrapper);
         if (!$om->getUnitOfWork()->isScheduledForDelete($document)) {
             $om->getUnitOfWork()->recomputeSingleDocumentChangeSet($om->getClassMetadata(get_class($document)), $document);
         }
@@ -52,16 +60,44 @@ abstract class AbstractODMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
      * @param LifecycleEventArgs $args 
      */
     public function postLoad($args) {
-        
+
         if (!$args instanceof LifecycleEventArgs)
             throw new \InvalidArgumentException('Invalid argument passed.');
 
-        $document = $args->getDocument();
-        //if (!$this->hasInDecodedRegistry($document, $args->getDocumentManager())) {
-            if ($this->processFields($document, false)) {
-                $this->addToDecodedRegistry($document, $args->getDocumentManager());
+        // Make a documentwrapper for passing around.
+        $documentWrapper = new DocumentWrapper($args->getDocumentManager(), $args->getDocument(), FALSE);
+
+        if ($this->processFields($documentWrapper)) {
+            $this->updateOriginalData($documentWrapper);
+        }
+    }
+
+    private function updateOriginalData(DocumentWrapperInterface $documentWrapper) {
+        $document = $documentWrapper->getObject();
+
+        // Parse field mapping for fast reference
+        $meta = $documentWrapper->getDocumentManager()->getClassMetadata(get_class($document));
+        $parsedMap = array('type' => array(), 'fieldName' => array());
+        foreach ($meta->getFieldNames() as $name) {
+            $temp = $meta->getFieldMapping($name);
+            $parsedMap['type'][$temp['name']] = $temp['type'];
+            $parsedMap['fieldName'][$temp['name']] = $temp['fieldName'];
+        }
+
+        // Generate final data array.  Do not change values which are of type "id"
+        $finalData = array();
+        foreach ($documentWrapper->getUOW()->getOriginalDocumentData($document) as $key => $value) {
+            //Check it is not the ID field.
+            if ($parsedMap['type'][$key] === 'id') {
+                $finalData[$key] = $value;
+                continue;
             }
-        //}
+            $property = $documentWrapper->getReflection()->getProperty($parsedMap['fieldName'][$key]);
+            $property->setAccessible(TRUE);
+            $newValue = $property->getValue($document);
+            $finalData[$key] = $newValue;
+        }
+        $documentWrapper->getUOW()->setOriginalDocumentData($document, $finalData);
     }
 
     /**

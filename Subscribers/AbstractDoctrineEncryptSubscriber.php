@@ -11,6 +11,7 @@ use TDM\DoctrineEncryptBundle\Configuration\Encrypted;
 use \ReflectionProperty;
 use \Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use TDM\DoctrineEncryptBundle\Interfaces\ObjectWrapperInterface;
 
 /**
  * Doctrine event subscriber which encrypt/decrypt entities
@@ -80,7 +81,7 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
      * @return Array Return all events which this subscriber is listening
      */
     abstract public function getSubscribedEvents();
-
+    
     /**
      * Capitalize string
      * @param string $word
@@ -96,14 +97,15 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
 
     /**
      * Process (encrypt/decrypt) entities fields
+     * @param ObjectManager $objectManager
      * @param Obj $object Some doctrine entity
      * @param Boolean $isEncryptOperation If true - encrypt, false - decrypt entity 
      */
-    protected function processFields($object, $isEncryptOperation = true) {
-        $encryptorMethod = $isEncryptOperation ? 'encrypt' : 'decrypt';
-        $properties = $this->getReflectionProperties($object);
+    protected function processFields(ObjectWrapperInterface $objectWrapper) {
+        $encryptorMethod = $objectWrapper->getIsEncrypt() ? 'encrypt' : 'decrypt';
+        $object = $objectWrapper->getObject();
         $withAnnotation = false;
-        foreach ($properties as $refProperty) {
+        foreach ($objectWrapper->getReflection()->getProperties() as $refProperty) {
             if ($this->processSingleField($object, $refProperty, $encryptorMethod)) {
                 $withAnnotation = TRUE;
             }
@@ -150,40 +152,7 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
     protected function handleValue($encryptorMethod, $value, $deterministic) {
         return $this->encryptor->$encryptorMethod($value, $deterministic);
     }
-
-    /**
-     * Check if we have entity in decoded registry
-     * @param Object $entity Some doctrine entity
-     * @param Doctrine\Common\Persistence\ObjectManager $em
-     * @return boolean
-     */
-    protected function hasInDecodedRegistry($entity, ObjectManager $om) {
-        $className = get_class($entity);
-        $metadata = $om->getClassMetadata($className);
-        $suffix = self::capitalize($metadata->getIdentifier());
-        if ($suffix == '')
-            return FALSE;
-        $getter = 'get' . $suffix;
-
-        return isset($this->decodedRegistry[$className][$entity->$getter()]);
-    }
-
-    /**
-     * Adds entity to decoded registry
-     * @param object $entity Some doctrine entity
-     * @param Doctrine\Common\Persistence\ObjectManager $em
-     */
-    protected function addToDecodedRegistry($entity, ObjectManager $om) {
-        return;
-        $className = get_class($entity);
-        $metadata = $om->getClassMetadata($className);
-        $suffix = self::capitalize($metadata->getIdentifier());
-        if ($suffix == '')
-            return FALSE;
-        $getter = 'get' . $suffix;
-        $this->decodedRegistry[$className][$entity->$getter()] = true;
-    }
-
+    
     /**
      * 
      * @param ReflectionProperty $reflectionProperty

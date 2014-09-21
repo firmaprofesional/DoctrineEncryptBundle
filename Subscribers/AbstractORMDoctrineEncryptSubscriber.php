@@ -68,11 +68,7 @@ abstract class AbstractORMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
             throw new \InvalidArgumentException('Invalid argument passed.');
 
         $entity = $args->getEntity();
-        if (!$this->hasInDecodedRegistry($entity, $args->getEntityManager())) {
-            if ($this->processFields($entity, false)) {
-                $this->addToDecodedRegistry($entity, $args->getEntityManager());
-            }
-        }
+        $this->processFields($entity, false);
     }
 
 }
