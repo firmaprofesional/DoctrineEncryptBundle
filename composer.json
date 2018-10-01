@@ -1,7 +1,7 @@
 {
-    "name": "tdm/doctrine-encrypt-bundle",
+    "name": "firmaprofesional/doctrine-encrypt-bundle",
     "type": "library",
-    "keywords": ["doctrine", "aes256", "encrypt", "decrypt"],
+    "keywords": ["doctrine", "aes256", "encrypt", "decrypt", "openssl"],
     "license": "MIT",
     "description": "Symfony2 bundle allows for the encrypting fields marked with annotations using Doctrine. Supports SQL(orm) and MongoDB(odm).",
     "require": {
@@ -10,9 +10,9 @@
         "ext-openssl": "*"
     },
     "autoload": {
-        "psr-0": { "TDM\\DoctrineEncryptBundle": "" }
+        "psr-4": { "FP\\DoctrineEncryptBundle": "" }
     },
-    "target-dir": "TDM/DoctrineEncryptBundle",
+    "target-dir": "FP/DoctrineEncryptBundle",
     "authors": [
         {
             "name": "Victor Melnik",
@@ -21,6 +21,10 @@
         {
             "name": "Westin Pigott",
             "email": "westin.pigott@techdata.com"
+        },
+        {
+            "name": "Dev Team",
+            "email": "pki@firmaprofesional.com"
         }
     ]
 }

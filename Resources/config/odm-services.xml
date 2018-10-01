@@ -6,18 +6,18 @@
         
     <services>
         <!-- Encryption service(subscriber) for encrypt/decrypt entities properties -->    
-        <service id="tdm_doctrine_encrypt.odm_subscriber.encrypt" class="TDM\DoctrineEncryptBundle\Subscribers\ODM\ODMEncrypt">
+        <service id="fp_doctrine_encrypt.odm_subscriber.encrypt" class="FP\DoctrineEncryptBundle\Subscribers\ODM\ODMEncrypt">
             <argument type="service" id="annotation_reader" />
             <tag name="doctrine_mongodb.odm.event_listener" event="prePersist" priority="-1000"/>
             <tag name="doctrine_mongodb.odm.event_listener" event="preUpdate" priority="-1000"/>
         </service>
         <!-- Decryption service(subscriber) for encrypt/decrypt entities properties -->    
-        <service id="tdm_doctrine_encrypt.odm_subscriber.decrypt" class="TDM\DoctrineEncryptBundle\Subscribers\ODM\ODMDecrypt">
+        <service id="fp_doctrine_encrypt.odm_subscriber.decrypt" class="FP\DoctrineEncryptBundle\Subscribers\ODM\ODMDecrypt">
             <argument type="service" id="annotation_reader" />
             <tag name="doctrine_mongodb.odm.event_subscriber" priority="1000"/>
         </service>
         <!-- All a standard accessor for getting the object manager -->
-        <service id="tdm_doctrine_encrypt.object_manager.odm" class="TDM\DoctrineEncryptBundle\Command\ODMOM">
+        <service id="fp_doctrine_encrypt.object_manager.odm" class="FP\DoctrineEncryptBundle\Command\ODMOM">
             <argument type="service" id="doctrine.odm.mongodb.document_manager" />
         </service>
     </services>

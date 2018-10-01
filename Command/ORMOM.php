@@ -1,8 +1,8 @@
 <?php
 
-namespace TDM\DoctrineEncryptBundle\Command;
+namespace FP\DoctrineEncryptBundle\Command;
 
-use TDM\DoctrineEncryptBundle\Interfaces\StandardizerInterface;
+use FP\DoctrineEncryptBundle\Interfaces\StandardizerInterface;
 use Doctrine\ORM\EntityManager;
 
 /**
@@ -29,7 +29,7 @@ class ORMOM implements StandardizerInterface {
     public function scheduleObjectForUpdate($object) {
         // A hackish way to force the object to be flagged as 
         // updated (so it triggers the events) when it really is not.
-        $this->getObjectManager()->getUnitOfWork()->setOriginalEntityData($object, array('__tdm_changer'=>'1'));        
+        $this->getObjectManager()->getUnitOfWork()->setOriginalEntityData($object, array('__fp_changer'=>'1'));
     }
 
 }

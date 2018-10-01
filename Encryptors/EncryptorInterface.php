@@ -1,6 +1,6 @@
 <?php
 
-namespace TDM\DoctrineEncryptBundle\Encryptors;
+namespace FP\DoctrineEncryptBundle\Encryptors;
 
 /**
  * Encryptor interface for encryptors

@@ -1,22 +1,21 @@
 <?php
 
-namespace TDM\DoctrineEncryptBundle\Command;
+namespace FP\DoctrineEncryptBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use TDMobility\SystemSettingsBundle\Interfaces\SettingsInterface;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Doctrine\Common\Persistence\ObjectManager;
 use \Exception;
 use \ReflectionProperty;
-use TDM\DoctrineEncryptBundle\Subscribers\AbstractDoctrineEncryptSubscriber as ADES;
-use TDM\DoctrineEncryptBundle\Configuration\Encrypted;
+use FP\DoctrineEncryptBundle\Subscribers\AbstractDoctrineEncryptSubscriber as ADES;
+use FP\DoctrineEncryptBundle\Configuration\Encrypted;
 use Doctrine\Common\Persistence\ObjectRepository;
-use TDM\DoctrineEncryptBundle\Interfaces\StandardizerInterface;
+use FP\DoctrineEncryptBundle\Interfaces\StandardizerInterface;
 
 /**
  * Description of UpdateDataCommand
@@ -133,12 +132,12 @@ class UpdateDataCommand extends ContainerAwareCommand {
             $output->writeln('<info>Processing with elevated memory limit of '.$limit.'M.</info>');
         }
 
-		$db_drivers = $this->getContainer()->getParameter('tdm_doctrine_encrypt.db_driver');
+		$db_drivers = $this->getContainer()->getParameter('fp_doctrine_encrypt.db_driver');
 
 		foreach($db_drivers as $db_driver){
 			$output->writeln('<info>Work on Driver '.$db_driver.'.</info>');
 			$this->objectManager = null;
-			$this->standardizer = $this->getContainer()->get('tdm_doctrine_encrypt.object_manager.'.$db_driver);
+			$this->standardizer = $this->getContainer()->get('fp_doctrine_encrypt.object_manager.'.$db_driver);
 
 			// Get the list of all collections
 			$output->writeln('<info>Loading list of classes.</info>');

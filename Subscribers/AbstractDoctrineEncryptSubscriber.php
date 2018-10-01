@@ -1,13 +1,13 @@
 <?php
 
-namespace TDM\DoctrineEncryptBundle\Subscribers;
+namespace FP\DoctrineEncryptBundle\Subscribers;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\ObjectManager;
 use \ReflectionClass;
-use TDM\DoctrineEncryptBundle\Encryptors\EncryptorInterface;
-use TDM\DoctrineEncryptBundle\Configuration\Encrypted;
+use FP\DoctrineEncryptBundle\Encryptors\EncryptorInterface;
+use FP\DoctrineEncryptBundle\Configuration\Encrypted;
 use \ReflectionProperty;
 use \Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,7 +20,7 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
     /**
      * Encrypted annotation full name
      */
-    const ENCRYPTED_ANN_NAME = 'TDM\DoctrineEncryptBundle\Configuration\Encrypted';
+    const ENCRYPTED_ANN_NAME = 'FP\DoctrineEncryptBundle\Configuration\Encrypted';
     
     /**
      * Encryptor

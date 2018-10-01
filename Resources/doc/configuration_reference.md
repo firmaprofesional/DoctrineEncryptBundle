@@ -3,7 +3,7 @@
 All available configuration options are listed below with their default values.
 
 ``` yaml
-tdm_doctrine_encrypt:  
+fp_doctrine_encrypt:  
 # Secret key for encrypt algorithm. All secret key checks are encryptor tasks only.
     secret_key:           ~ # Required
 # ORM and MongoDB are supported using "orm" or "odm" respectively.

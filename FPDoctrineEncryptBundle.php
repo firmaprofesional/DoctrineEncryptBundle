@@ -1,15 +1,15 @@
 <?php
 
-namespace TDM\DoctrineEncryptBundle;
+namespace FP\DoctrineEncryptBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
-use TDM\DoctrineEncryptBundle\DependencyInjection\TDMDoctrineEncryptExtension;
-use TDM\DoctrineEncryptBundle\DependencyInjection\Compiler\RegisterServiceCompilerPass;
+use FP\DoctrineEncryptBundle\DependencyInjection\FPDoctrineEncryptExtension;
+use FP\DoctrineEncryptBundle\DependencyInjection\Compiler\RegisterServiceCompilerPass;
 
 
-class TDMDoctrineEncryptBundle extends Bundle {
+class FPDoctrineEncryptBundle extends Bundle {
     
     public function build(ContainerBuilder $container) {
         parent::build($container);
@@ -18,6 +18,6 @@ class TDMDoctrineEncryptBundle extends Bundle {
     
     public function getContainerExtension()
     {
-        return new TDMDoctrineEncryptExtension();
+        return new FPDoctrineEncryptExtension();
     }
 }

@@ -1,17 +1,17 @@
 #Installation
 
-1. Download TDMDoctrineEncryptBundle using composer
+1. Download FPDoctrineEncryptBundle using composer
 2. Enable the Bundle
 3. Add configuration
 
-### Step 1: Download TDMDoctrineEncryptBundle using composer
+### Step 1: Download FPDoctrineEncryptBundle using composer
 
-Add TDMDoctrineEncryptBundle in your composer.json:
+Add FPDoctrineEncryptBundle in your composer.json:
 
 ```js
 {
     "require": {
-        "tdm/doctrine-encrypt-bundle": "dev-master"
+        "firmaprofesional/doctrine-encrypt-bundle": "dev-master"
     }
 }
 ```
@@ -19,10 +19,10 @@ Add TDMDoctrineEncryptBundle in your composer.json:
 Now tell composer to download the bundle by running the command:
 
 ``` bash
-$ php composer.phar update tdm/doctrine-encrypt-bundle
+$ php composer.phar update firmaprofesional/doctrine-encrypt-bundle
 ```
 
-Composer will install the bundle to your project's `vendor/tdm` directory.
+Composer will install the bundle to your project's `vendor/firmaprofesional` directory.
 
 ### Step 2: Enable the bundle
 
@@ -36,11 +36,11 @@ public function registerBundles()
 {
     $bundles = array(
         // ...
-        new TDM\DoctrineEncryptBundle\TDMDoctrineEncryptBundle(),
+        new FP\DoctrineEncryptBundle\FPDoctrineEncryptBundle(),
     );
 }
 ```
 
 ### Step 3: Add configuration to config.yml
 
-See details at: [Configuration reference](https://github.com/TDMobility/DoctrineEncryptBundle/blob/master/Resources/doc/configuration_reference.md)
+See details at: [Configuration reference](https://github.com/firmaprofesional/DoctrineEncryptBundle/blob/master/Resources/doc/configuration_reference.md)

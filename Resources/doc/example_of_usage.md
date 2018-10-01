@@ -20,7 +20,7 @@ namespace Acme\DemoBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 // importing @Encrypted annotation
-use TDM\DoctrineEncryptBundle\Configuration\Encrypted;
+use FP\DoctrineEncryptBundle\Configuration\Encrypted;
 
 /**
  * @ORM\Entity
@@ -127,7 +127,7 @@ use Acme\DemoBundle\Entity\UserV;
 class DemoController extends Controller
 {
     /**
-     * @Route("/show-user/{id}", name="_tdm_decrypt_test", requirements={"id" = "\d+"})
+     * @Route("/show-user/{id}", name="_fp_decrypt_test", requirements={"id" = "\d+"})
      * @Template
      */
     public function getUserAction(UserV $user) {}
