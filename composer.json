@@ -10,7 +10,7 @@
         "ext-openssl": "*"
     },
     "autoload": {
-        "psr-4": { "FP\\DoctrineEncryptBundle": "" }
+        "psr-4": { "FP\\DoctrineEncryptBundle\\": "" }
     },
     "authors": [
         {
