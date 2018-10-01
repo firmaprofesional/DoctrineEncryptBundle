@@ -12,7 +12,6 @@
     "autoload": {
         "psr-4": { "FP\\DoctrineEncryptBundle": "" }
     },
-    "target-dir": "FP/DoctrineEncryptBundle",
     "authors": [
         {
             "name": "Victor Melnik",
