@@ -1,6 +1,6 @@
 <?php
 
-namespace TDM\DoctrineEncryptBundle\DependencyInjection;
+namespace FP\DoctrineEncryptBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -14,7 +14,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface {
     const defaultPrefix = '_ENC_';
-    const defaultEncryptorService = 'tdm_doctrine_encrypt.encryptor.default';
+    const defaultEncryptorService = 'fp_doctrine_encrypt.encryptor.default';
     private static $supportedDrivers = array('orm', 'odm');
     
     /**
@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface {
      */
     public function getConfigTreeBuilder() {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('tdm_doctrine_encrypt');
+        $rootNode = $treeBuilder->root('fp_doctrine_encrypt');
         
         // Grammar of config tree
         $rootNode

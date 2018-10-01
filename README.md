@@ -7,22 +7,18 @@ help of some encryption algorithm in database and it will be clearly for develop
 
 The bulk of the documentation is stored in the `Resources/doc/index.md` file in this bundle
 
-The package was originally created by Victor Melnik (@vmelnik-ukraine) and has 
-since been extensively modified in the following ways.
-* Added proper implementation of AES256
-* Added use of prefix to determine when values are encrypted
-* Added capability of deterministic values which allow for values to be encrypted with the same IV, which allows the exact values to be searched for.
-* Added support for MongoDB.
-** Arrays in mongo are encrypted per value and not the whole array.  (Recurses through the arrays)
-* Added capability to decrypt values (by adding decrypt to the annotation).
-* Encryption implementation is now a service and can be overridden.
-* Added command line tool to update an entire database scheme.  This loads and saves every entity/document in the database to update which values are encrypted.
+The package was originally created by Victor Melnik (@vmelnik-ukraine) and forked by Westin Pigott(@westinpigott).
+This is a fork of the latest.
+
+Our goals with this fork are:
+* Replace mcrypt with openssl encryption
+* Fix problems with Symfony 3.4
 
 The following documents are available:
 
-* [Configuration reference](https://github.com/TDMobility/DoctrineEncryptBundle/blob/master/Resources/doc/configuration_reference.md)
-* [Installation](https://github.com/TDMobility/DoctrineEncryptBundle/blob/master/Resources/doc/installation.md)
-* [Example of usage](https://github.com/TDMobility/DoctrineEncryptBundle/blob/master/Resources/doc/example_of_usage.md)
+* [Configuration reference](https://github.com/firmaprofesional/DoctrineEncryptBundle/blob/master/Resources/doc/configuration_reference.md)
+* [Installation](https://github.com/firmaprofesional/DoctrineEncryptBundle/blob/master/Resources/doc/installation.md)
+* [Example of usage](https://github.com/firmaprofesional/DoctrineEncryptBundle/blob/master/Resources/doc/example_of_usage.md)
 
 ###License
 

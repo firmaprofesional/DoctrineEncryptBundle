@@ -1,8 +1,8 @@
 <?php
 
-namespace TDM\DoctrineEncryptBundle\Command;
+namespace FP\DoctrineEncryptBundle\Command;
 
-use TDM\DoctrineEncryptBundle\Interfaces\StandardizerInterface;
+use FP\DoctrineEncryptBundle\Interfaces\StandardizerInterface;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\Common\Collections\Collection;
 
@@ -38,7 +38,7 @@ class ODMOM implements StandardizerInterface {
 
         // A hackish way to force the object to be flagged as 
         // updated (so it triggers the events) when it really is not.
-        $this->getObjectManager()->getUnitOfWork()->setOriginalDocumentData($object, array('__tdm_changer' => '1'));
+        $this->getObjectManager()->getUnitOfWork()->setOriginalDocumentData($object, array('__fp_changer' => '1'));
     }
 
     private function handleEmbed($object, $metadata, $fieldName) {

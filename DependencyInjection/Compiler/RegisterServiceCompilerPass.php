@@ -1,6 +1,6 @@
 <?php
 
-namespace TDM\DoctrineEncryptBundle\DependencyInjection\Compiler;
+namespace FP\DoctrineEncryptBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -18,19 +18,19 @@ class RegisterServiceCompilerPass implements CompilerPassInterface {
     public function process(ContainerBuilder $container) {
 
         // Load some parameters
-        $secretKey = $container->getParameter('tdm_doctrine_encrypt.secret_key');
-        $systemSalt = $container->getParameter('tdm_doctrine_encrypt.system_salt');
-        $encryptorServiceId = $container->getParameter('tdm_doctrine_encrypt.encryptor_service');
-        $prefix = $container->getParameter('tdm_doctrine_encrypt.encrypted_prefix');
+        $secretKey = $container->getParameter('fp_doctrine_encrypt.secret_key');
+        $systemSalt = $container->getParameter('fp_doctrine_encrypt.system_salt');
+        $encryptorServiceId = $container->getParameter('fp_doctrine_encrypt.encryptor_service');
+        $prefix = $container->getParameter('fp_doctrine_encrypt.encrypted_prefix');
 
         // Set the arguments for the encryptor service and add alias
         $this->getDefinition($container, $encryptorServiceId)->setArguments(array($secretKey, $systemSalt, $prefix));
         $encrypterServiceReference = new Reference($encryptorServiceId);
         
         // Add service as argument on listeners.
-        foreach($container->getParameter('tdm_doctrine_encrypt.db_driver') as $db_driver){
-            $this->getDefinition($container, 'tdm_doctrine_encrypt.'.$db_driver.'_subscriber.encrypt')->addArgument($encrypterServiceReference);
-            $this->getDefinition($container, 'tdm_doctrine_encrypt.'.$db_driver.'_subscriber.decrypt')->addArgument($encrypterServiceReference);
+        foreach($container->getParameter('fp_doctrine_encrypt.db_driver') as $db_driver){
+            $this->getDefinition($container, 'fp_doctrine_encrypt.'.$db_driver.'_subscriber.encrypt')->addArgument($encrypterServiceReference);
+            $this->getDefinition($container, 'fp_doctrine_encrypt.'.$db_driver.'_subscriber.decrypt')->addArgument($encrypterServiceReference);
         }
     }
 
