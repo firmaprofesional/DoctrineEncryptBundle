@@ -11,6 +11,7 @@ use FP\DoctrineEncryptBundle\Configuration\Encrypted;
 use \ReflectionProperty;
 use \Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Doctrine\ORM\Mapping\MappingException;
 
 /**
  * Doctrine event subscriber which encrypt/decrypt entities
@@ -160,12 +161,18 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
     protected function hasInDecodedRegistry($entity, ObjectManager $om) {
         $className = get_class($entity);
         $metadata = $om->getClassMetadata($className);
-        $suffix = self::capitalize($metadata->getIdentifier());
-        if ($suffix == '')
+        try {
+            $identifier = $metadata->getSingleIdentifierFieldName();
+        } catch (MappingException $e) {
             return FALSE;
-        $getter = 'get' . $suffix;
-
-        return isset($this->decodedRegistry[$className][$entity->$getter()]);
+        }
+        $reflectionClass = new ReflectionClass($entity);
+        if ($entity instanceof \Doctrine\Common\Persistence\Proxy) {
+            $reflectionClass = $reflectionClass->getParentClass();
+        }
+        $property = $reflectionClass->getProperty($identifier);
+        $property->setAccessible(true);
+        return isset($this->decodedRegistry[$className][$property->getValue($entity)]);
     }
 
     /**
@@ -177,15 +184,21 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
         return;
         $className = get_class($entity);
         $metadata = $om->getClassMetadata($className);
-        $suffix = self::capitalize($metadata->getIdentifier());
-        if ($suffix == '')
+        try {
+            $identifier = $metadata->getSingleIdentifierFieldName();
+        } catch (MappingException $e) {
             return FALSE;
-        $getter = 'get' . $suffix;
-        $this->decodedRegistry[$className][$entity->$getter()] = true;
+        }
+        if ($entity instanceof \Doctrine\Common\Persistence\Proxy) {
+            $reflectionClass = $reflectionClass->getParentClass();
+        }
+        $property = $reflectionClass->getProperty($identifier);
+        $property->setAccessible(true);
+        $this->decodedRegistry[$className][$property->getValue($entity)] = true;
     }
 
     /**
-     * 
+     *
      * @param ReflectionProperty $reflectionProperty
      * @return Encrypted|NULL
      */
