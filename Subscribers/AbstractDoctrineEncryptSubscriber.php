@@ -167,7 +167,7 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
             return FALSE;
         }
         $reflectionClass = new ReflectionClass($entity);
-        if ($entity instanceof \Doctrine\Common\Persistence\Proxy) {
+        if (!$reflectionClass->hasProperty($identifier)) {
             $reflectionClass = $reflectionClass->getParentClass();
         }
         $property = $reflectionClass->getProperty($identifier);
