@@ -97,7 +97,7 @@ abstract class AbstractORMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
         }
 
         $decrypted = $this->getFieldValue($entityToProcess, $propertyName, false);
-        $isDeterministic = $this->isDeterministric($object);
+        $isDeterministic = $this->isDeterministric($entityToProcess);
         $originalValueDecrypted = $this->handleValue('decrypt', $originalData[$propertyName], $isDeterministic);
         if ($decrypted === $originalValueDecrypted) {
             if (method_exists($entityToProcess, $propertyName)) {

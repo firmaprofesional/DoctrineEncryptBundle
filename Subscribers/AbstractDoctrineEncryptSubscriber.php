@@ -219,7 +219,19 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
 
     protected function isDeterministric($object)
     {
-        return $object->getDeterministic();
+        $properties = $this->getReflectionProperties($object);
+        foreach ($properties as $refProperty) {
+            $annotation = $this->getAnnotation($refProperty);
+            if (NULL === $annotation) {
+                continue;
+            }
+
+            if (!(($annotation->getDecrypt()) )) {
+                return $annotation->getDeterministic();
+            }
+
+        }
+        return false;
     }
 
     /**
