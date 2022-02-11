@@ -112,6 +112,81 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
         return $withAnnotation;
     }
 
+    protected function hasEncryptedFields($object) {
+        $properties = $this->getReflectionProperties($object);
+        foreach ($properties as $refProperty) {
+            $refProperty->setAccessible(TRUE);
+            if ($this->isFieldEncrypted($object, $refProperty->getName())) {
+                return TRUE;
+            }
+        }
+        return false;
+    }
+
+    protected function getEncryptedFields($object) {
+        $result = [];
+        $properties = $this->getReflectionProperties($object);
+        foreach ($properties as $refProperty) {
+            $refProperty->setAccessible(TRUE);
+            if ($this->isFieldEncrypted($object, $refProperty->getName())) {
+                $result[] = $refProperty->getName();
+            }
+        }
+        return $result;
+    }
+
+    protected function isFieldEncrypted($object, $fieldName) {
+        $properties = $this->getReflectionProperties($object);
+        $withAnnotation = false;
+        foreach ($properties as $refProperty) {
+            if ($refProperty->getName() === $fieldName) {
+                $annotation = $this->getAnnotation($refProperty);
+                if (NULL === $annotation) {
+                    return FALSE;
+                }
+
+                return TRUE;
+            }
+        }
+        return $withAnnotation;
+    }
+
+    protected function getFieldValue($object, $fieldName, $isEncryptOperation = true) {
+        $encryptorMethod = $isEncryptOperation ? 'encrypt' : 'decrypt';
+        $properties = $this->getReflectionProperties($object);
+        foreach ($properties as $refProperty) {
+            if ($fieldName === $refProperty->getName()) {
+                $annotation = $this->getAnnotation($refProperty);
+                if (null === $annotation) {
+                    return false;
+                }
+                $refProperty->setAccessible(true);
+                return $this->determineNewValue(
+                    $annotation,
+                    $refProperty->getValue($object),
+                    $object,
+                    $encryptorMethod
+                );
+            }
+        }
+        return false;
+    }
+
+    protected function getFieldUnchangedValue($object, $fieldName) {
+        $properties = $this->getReflectionProperties($object);
+        foreach ($properties as $refProperty) {
+            if ($fieldName === $refProperty->getName()) {
+                $annotation = $this->getAnnotation($refProperty);
+                if (null === $annotation) {
+                    return false;
+                }
+                $refProperty->setAccessible(true);
+                return $refProperty->getValue($object);
+            }
+        }
+        return false;
+    }
+
     private function processSingleField($object, ReflectionProperty $refProperty, $encryptorMethod) {
         $annotation = $this->getAnnotation($refProperty);
         if (NULL === $annotation) {
@@ -120,6 +195,8 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
 
         if (!(($annotation->getDecrypt()) && ('encrypt' === $encryptorMethod))) {
             $refProperty->setAccessible(TRUE);
+
+
             $refProperty->setValue($object, $this->determineNewValue($annotation, $refProperty->getValue($object), $object, $encryptorMethod));
         }
         return TRUE;
@@ -140,6 +217,10 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
         return $this->handleValue($encryptorMethod, $currentValue, $annotation->getDeterministic());
     }
 
+    protected function isDeterministric($object)
+    {
+        return $object->getDeterministic();
+    }
 
     /**
      * This method can be overridden to handle a specific data type differently.
@@ -189,6 +270,7 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
         } catch (MappingException $e) {
             return FALSE;
         }
+        $reflectionClass = new ReflectionClass($entity);
         if ($entity instanceof \Doctrine\Common\Persistence\Proxy) {
             $reflectionClass = $reflectionClass->getParentClass();
         }
