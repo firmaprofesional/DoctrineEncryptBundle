@@ -309,4 +309,70 @@ abstract class AbstractDoctrineEncryptSubscriber implements EventSubscriber {
         $reflectionClass = new ReflectionClass($object);
         return $reflectionClass->getProperties();
     }
+
+
+    /**
+     * @param \Doctrine\ORM\EntityManager $om
+     * @return void
+     */
+    protected function checkRelatedEntitiesEncryption(\Doctrine\ORM\EntityManager $om): void
+    {
+        $identityMap = $om->getUnitOfWork()->getIdentityMap();
+        foreach ($identityMap as $className => $entitiesToProcess) {
+            foreach ($entitiesToProcess as $entityToProcess) {
+                $this->checkEncryptedFieldsValues($entityToProcess, $om);
+            }
+        }
+    }
+
+    /**
+     * @param $entityToProcess
+     * @param \Doctrine\ORM\EntityManager $om
+     * @return void
+     */
+    private function checkEncryptedFieldsValues($entityToProcess, \Doctrine\ORM\EntityManager $om): void
+    {
+        $hasEncryptedFields = $this->hasEncryptedFields($entityToProcess);
+        if ($hasEncryptedFields) {
+            $encryptedFields = $this->getEncryptedFields($entityToProcess);
+            foreach ($encryptedFields as $encryptedField) {
+                $this->compareEncryptedProperyValueWithOriginal($encryptedField, $om, $entityToProcess);
+            }
+        }
+    }
+
+    /**
+     * @param array $originalData
+     * @param $propertyName
+     * @param $decrypted
+     * @param \Doctrine\ORM\EntityManager $om
+     * @param $entityToProcess
+     * @return void
+     */
+    private function compareEncryptedProperyValueWithOriginal(
+        $propertyName,
+        \Doctrine\ORM\EntityManager $om,
+        $entityToProcess
+    ) {
+        $originalData = $om->getUnitOfWork()->getOriginalEntityData($entityToProcess);
+        if (!array_key_exists($propertyName, $originalData)) {
+            return;
+        }
+
+        $decrypted = $this->getFieldValue($entityToProcess, $propertyName, false);
+        $isDeterministic = $this->isDeterministric($entityToProcess);
+        $originalValueDecrypted = $this->handleValue('decrypt', $originalData[$propertyName], $isDeterministic);
+        if ($decrypted === $originalValueDecrypted) {
+            if (method_exists($entityToProcess, $propertyName)) {
+                $unchangedValue = $entityToProcess->$propertyName();
+            } else {
+                $unchangedValue = $this->getFieldUnchangedValue($entityToProcess, $propertyName);
+            }
+            $om->getUnitOfWork()->setOriginalEntityProperty(
+                spl_object_id($entityToProcess),
+                $propertyName,
+                $unchangedValue
+            );
+        }
+    }
 }

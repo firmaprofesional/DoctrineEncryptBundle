@@ -10,6 +10,7 @@
             <argument type="service" id="annotation_reader" />
             <tag name="doctrine.event_listener" event="prePersist" priority="-1000"/>
             <tag name="doctrine.event_listener" event="preUpdate" priority="-1000"/>
+            <tag name="doctrine.event_listener" event="preFlush" priority="-1000"/>
         </service>
         <!-- Decryption service(subscriber) for encrypt/decrypt entities properties -->    
         <service id="fp_doctrine_encrypt.orm_subscriber.decrypt" class="FP\DoctrineEncryptBundle\Subscribers\ORM\ORMDecrypt">
