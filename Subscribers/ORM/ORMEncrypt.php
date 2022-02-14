@@ -20,6 +20,7 @@ class ORMEncrypt extends AbstractORMDoctrineEncryptSubscriber {
         return array(
             Events::prePersist,
             Events::preUpdate,
+            Events::preFlush,
         );
     }
 

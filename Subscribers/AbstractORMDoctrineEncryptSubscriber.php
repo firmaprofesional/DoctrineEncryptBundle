@@ -29,18 +29,25 @@ abstract class AbstractORMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
     }
 
     /**
+     * @param PreFlushEventArgs $args
+     * @return void
+     */
+    public function preFlush($args) {
+        $om = $args->getEntityManager();
+        $this->checkRelatedEntitiesEncryption($om);
+    }
+
+    /**
      * Listen a prePersist lifecycle event. Checking and encrypt entities
      * which have <code>@Encrypted</code> annotation
      * @param LifecycleEventArgs $args
      */
     public function prePersist($args) {
-
         if (!$args instanceof LifecycleEventArgs) {
             throw new \InvalidArgumentException('Invalid argument passed.');
         }
 
         $entity = $args->getEntity();
-
         $om = $args->getEntityManager();
 
         $this->processFields($entity);
@@ -48,70 +55,6 @@ abstract class AbstractORMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
         $this->checkRelatedEntitiesEncryption($om);
     }
 
-    /**
-     * @param \Doctrine\ORM\EntityManager $om
-     * @return void
-     */
-    private function checkRelatedEntitiesEncryption(\Doctrine\ORM\EntityManager $om): void
-    {
-        $identityMap = $om->getUnitOfWork()->getIdentityMap();
-        foreach ($identityMap as $className => $entitiesToProcess) {
-            foreach ($entitiesToProcess as $entityToProcess) {
-                $this->checkEncryptedFieldsValues($entityToProcess, $om);
-            }
-        }
-    }
-
-    /**
-     * @param $entityToProcess
-     * @param \Doctrine\ORM\EntityManager $om
-     * @return void
-     */
-    private function checkEncryptedFieldsValues($entityToProcess, \Doctrine\ORM\EntityManager $om): void
-    {
-        $hasEncryptedFields = $this->hasEncryptedFields($entityToProcess);
-        if ($hasEncryptedFields) {
-            $encryptedFields = $this->getEncryptedFields($entityToProcess);
-            foreach ($encryptedFields as $encryptedField) {
-                $this->compareEncryptedProperyValueWithOriginal($encryptedField, $om, $entityToProcess);
-            }
-        }
-    }
-
-    /**
-     * @param array $originalData
-     * @param $propertyName
-     * @param $decrypted
-     * @param \Doctrine\ORM\EntityManager $om
-     * @param $entityToProcess
-     * @return void
-     */
-    private function compareEncryptedProperyValueWithOriginal(
-        $propertyName,
-        \Doctrine\ORM\EntityManager $om,
-        $entityToProcess
-    ): void {
-        $originalData = $om->getUnitOfWork()->getOriginalEntityData($entityToProcess);
-        if (!array_key_exists($propertyName, $originalData)) {
-            return;
-        }
-
-        $decrypted = $this->getFieldValue($entityToProcess, $propertyName, false);
-        $isDeterministic = $this->isDeterministric($entityToProcess);
-        $originalValueDecrypted = $this->handleValue('decrypt', $originalData[$propertyName], $isDeterministic);
-        if ($decrypted === $originalValueDecrypted) {
-            if (method_exists($entityToProcess, $propertyName)) {
-                $unchangedValue = $entityToProcess->$propertyName();
-            } else {
-                $unchangedValue = $this->getFieldUnchangedValue($entityToProcess, $propertyName);
-            }
-            $om->getUnitOfWork()->setOriginalEntityProperty(
-                spl_object_id($entityToProcess),
-                $propertyName,
-                $unchangedValue
-            );
-        }
-    }
 
     /**
      * Listen a preUpdate lifecycle event. Checking and encrypt entities fields
