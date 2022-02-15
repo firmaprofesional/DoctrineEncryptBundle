@@ -70,6 +70,31 @@ abstract class AbstractORMDoctrineEncryptSubscriber extends AbstractDoctrineEncr
         $this->processFields($entity);
 
         $om = $args->getEntityManager();
+        if ($om->getUnitOfWork()->isScheduledForUpdate($entity)) {
+            $changeset = $om->getUnitOfWork()->getEntityChangeSet($entity);
+            $encryptedModified = false;
+            foreach ($changeset as $fieldname => $change) {
+                if ($this->isFieldEncrypted($entity, $fieldname)) {
+                    $encryptedModified = true;
+                }
+            }
+
+            if (!$encryptedModified) {
+                $properties = $this->getReflectionProperties($entity);
+                foreach ($properties as $refProperty) {
+                    $propertyName = $refProperty->getName();
+                    if ($this->isFieldEncrypted($entity, $propertyName)) {
+                        if (method_exists($entity, $propertyName)) {
+                            $encrypted = $entity->$propertyName();
+                        } else {
+                            $encrypted = $this->getFieldUnchangedValue($entity, $propertyName);
+                        }
+                        $om->getUnitOfWork()->setOriginalEntityProperty(spl_object_id($entity), $propertyName, $encrypted);
+                    }
+                }
+            }
+        }
+
         if (!$om->getUnitOfWork()->isScheduledForDelete($entity)) {
             $om->getUnitOfWork()->recomputeSingleEntityChangeSet($om->getClassMetadata(get_class($entity)), $entity);
         }
