@@ -21,8 +21,8 @@ class Configuration implements ConfigurationInterface {
      * {@inheritDoc}
      */
     public function getConfigTreeBuilder() {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('fp_doctrine_encrypt');
+        $treeBuilder = new TreeBuilder('fp_doctrine_encrypt');
+        $rootNode = $treeBuilder->getRootNode();
         
         // Grammar of config tree
         $rootNode
