@@ -16,13 +16,12 @@ use Symfony\Component\DependencyInjection\Definition;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class FPDoctrineEncryptExtension extends Extension
-{
+class FPDoctrineEncryptExtension extends Extension {
+
     /**
      * {@inheritDoc}
      */
-    public function load(array $configs, ContainerBuilder $container)
-    {
+    public function load(array $configs, ContainerBuilder $container) {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
         $services = array(
@@ -57,7 +56,7 @@ class FPDoctrineEncryptExtension extends Extension
         $container->setParameter('fp_doctrine_encrypt.encrypted_prefix', $config['encrypted_prefix']);
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-        foreach ($config['db_driver'] as $db_driver) {
+        foreach($config['db_driver'] as $db_driver){
             $loader->load(sprintf('%s.xml', $services[$db_driver]));
         }
 
@@ -67,8 +66,7 @@ class FPDoctrineEncryptExtension extends Extension
         }
     }
 
-    public function getAlias(): string
-    {
+    public function getAlias(): string {
         return 'fp_doctrine_encrypt';
     }
 
